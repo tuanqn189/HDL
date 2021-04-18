@@ -1,0 +1,36 @@
+// Chip name: RAM4K
+// Inputs: in[16], address[12], load
+// Outputs: out[16]
+// Function: 	out(t) = RAM[address(t)](t)
+//		If load(t-1) then
+//			RAM[address(t-1)](t) = in(t-1)
+// Comment: "=" is a 16-bit operation
+
+
+CHIP RAM4K {
+	IN in[16], load, address[12];
+	OUT out[16];
+
+	PARTS:
+
+// Similar to how RAM512 was built, this time we will implement 8 RAM512 to create RAM4K
+
+// we will add 3 more elements into the address array to cover the position
+// of the 8 RAM512
+DMux8Way(in=load, sel=address[9..11], a=a,b=b,c=c,d=d,e=e,f=f,g=g,h=h);
+
+// Listing the 8 RAM512 using address[0..8]
+
+RAM512(in=in, load=a, address=address[0..8], out=ram512a);
+RAM512(in=in, load=b, address=address[0..8], out=ram512b);
+RAM512(in=in, load=c, address=address[0..8], out=ram512c);
+RAM512(in=in, load=d, address=address[0..8], out=ram512d);
+RAM512(in=in, load=e, address=address[0..8], out=ram512e);
+RAM512(in=in, load=f, address=address[0..8], out=ram512f);
+RAM512(in=in, load=g, address=address[0..8], out=ram512g);
+RAM512(in=in, load=h, address=address[0..8], out=ram512h);
+
+// Use Mux8Way16 at the end to select which value to channel to the output
+
+Mux8Way16(a=ram512a, b=ram512b, c=ram512c, d=ram512d, e=ram512e, f=ram512f, g=ram512g, h=ram512h, sel=address[9..11], out=out);
+}
